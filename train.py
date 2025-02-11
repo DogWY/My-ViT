@@ -3,7 +3,14 @@ from torchvision.datasets import OxfordIIITPet
 from torchvision import transforms
 from torch.utils.data import random_split, DataLoader
 
+from torch.utils.tensorboard import SummaryWriter
+
+from tqdm import trange
+
 from vit import ViT
+
+torch.backends.cuda.enable_mem_efficient_sdp(True)  # 开启高效注意力
+torch.backends.cuda.enable_flash_sdp(True)  # 开启 Flash Attention
 
 batch_size = 32
 lr = 3e-5
@@ -44,7 +51,10 @@ criterion = torch.nn.CrossEntropyLoss()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-for epoch in range(epochs):
+writer = SummaryWriter()
+
+pbar = trange(epochs)
+for epoch in pbar:
     model.train()
     for i, (x, y) in enumerate(train_loader):
         x, y = x.to(device), y.to(device)
@@ -55,8 +65,9 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
-        if i % 10 == 0:
-            print(f"Epoch {epoch}, iter {i}, loss: {loss.item()}")
+        writer.add_scalars(
+            "Loss", {"train": loss.item()}, epoch * len(train_loader) + i
+        )
 
     model.eval()
     with torch.no_grad():
@@ -69,4 +80,8 @@ for epoch in range(epochs):
             total += y.size(0)
             correct += (predicted == y).sum().item()
 
-        print(f"Epoch {epoch}, val acc: {correct / total}")
+        writer.add_scalars(
+            "Accuracy", {"val": correct / total}, epoch * len(train_loader) + i
+        )
+
+    pbar.set_description(f"Epoch {epoch}, val acc: {correct / total}")

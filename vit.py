@@ -34,6 +34,7 @@ class ViT(nn.Module):
                 dim_feedforward=dim_feedforward,
                 dropout=dropout,
                 activation="gelu",
+                batch_first=True,
             ),
             num_layers=num_layers,
             norm=nn.LayerNorm(d_model),
