@@ -1,14 +1,3 @@
-import timm
-import torch
-from torchvision.datasets import OxfordIIITPet
-from torchvision import transforms
-from torch.utils.data import random_split, DataLoader
-
-from torch.utils.tensorboard import SummaryWriter
-
-from tqdm import trange
-
-if __name__ == "__main__":
     batch_size = 32
     lr = 3e-5
     epochs = 300

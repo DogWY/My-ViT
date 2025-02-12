@@ -1,8 +1,9 @@
-import timm
 import torch
 from torchvision.datasets import OxfordIIITPet
 from torchvision import transforms
 from torch.utils.data import random_split, DataLoader
+
+from torchvision.models.swin_transformer import swin_b
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -38,7 +39,7 @@ if __name__ == "__main__":
         val_dataset, batch_size=batch_size, shuffle=False, num_workers=4
     )
 
-    model = timm.create_model("vit_base_patch16_224", pretrained=False)
+    model = swin_b()
 
     model = model.to(device)
 
